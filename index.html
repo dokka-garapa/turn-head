@@ -10,12 +10,13 @@
 :root[data-theme="dark"]{--bg:#1d1c1a;--fg:#ece8dd;--panel:#33312d;--accent:#e8613a;--line:#59554c}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:none}
 html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif}
-#app{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:8px;pointer-events:none}
-#step{font-weight:700;font-size:15px;letter-spacing:.04em;padding:4px 0}
-#top{width:100%;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;pointer-events:none}
+#app{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:4px;padding:8px;pointer-events:none}
+#step{font-weight:700;font-size:15px;letter-spacing:.04em;padding:0}
+#top{width:100%;display:flex;flex-direction:column;justify-content:flex-start;align-items:stretch;gap:6px;pointer-events:none}
 #ttl{margin:0;flex:1;font-size:clamp(12px,3.4vw,16px);font-weight:700;line-height:1.3}
-#langs{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:4px;max-width:72%}
-#langs button{min-height:36px;padding:0 8px;font-size:12px}
+#langs{display:flex;flex-wrap:nowrap;justify-content:flex-end;gap:4px;max-width:100%;width:100%}
+#langs button{flex:1 1 0;min-width:0;min-height:36px;padding:0 4px;font-size:12px;border-radius:999px;white-space:nowrap}
+#langs button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
 #grid{display:grid;gap:0;pointer-events:none}
 .ref{display:flex;align-items:center;justify-content:center;overflow:hidden}
 .ref canvas{width:100%;aspect-ratio:1;background:#fff;border:1px solid var(--line);pointer-events:none}
@@ -26,12 +27,12 @@ html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none;backgrou
 #wrap #guide{pointer-events:none;background:transparent;border-color:transparent}
 #msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:16px;font-size:clamp(18px,5vw,30px);font-weight:700;color:#222;opacity:.55;pointer-events:none;transition:opacity .25s}
 #msg.hide{opacity:0}
-#bar{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding-top:6px;pointer-events:none}
+#bar{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding-top:2px;pointer-events:none}
 button{pointer-events:auto;touch-action:none;font:inherit;font-size:14px;font-weight:600;min-height:44px;padding:0 14px;border-radius:10px;border:2px solid var(--line);background:var(--panel);color:var(--fg)}
 button.on{border-color:var(--fg)}
 button.go{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
 button:disabled{opacity:.4}
-#result{display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;flex:1;pointer-events:none}
+#result{display:none;flex-direction:column;align-items:center;justify-content:flex-start;gap:8px;flex:none;pointer-events:none}
 #result img{max-width:92vw;max-height:46vh;border:2px solid var(--fg);background:#fff;pointer-events:auto;-webkit-user-select:auto;user-select:auto;-webkit-touch-callout:default}
 #result p{margin:0;font-size:14px;text-align:center}
 .row{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;pointer-events:none}
@@ -39,7 +40,7 @@ button:disabled{opacity:.4}
 </head>
 <body>
 <div id="app">
-  <div id="top"><h1 id="ttl"></h1><div id="langs"><button data-l="ja">日本語</button><button data-l="en">English</button><button data-l="ko">한국어</button><button data-l="zh">中文</button><button data-l="fr">Français</button><button data-l="es">Español</button><button data-l="ar">العربية</button></div></div>
+  <div id="top"><h1 id="ttl"></h1><div id="langs"><button data-l="ja">日</button><button data-l="en">EN</button><button data-l="ko">한</button><button data-l="zh">中</button><button data-l="fr">FR</button><button data-l="es">ES</button><button data-l="ar">ع</button><button data-l="th">ไทย</button></div></div>
   <div id="step">STEP 1 / 3</div>
   <div id="grid">
     <div class="ref" id="c-t"><canvas id="rt" width="300" height="300"></canvas></div>
@@ -82,6 +83,8 @@ I18N.ar={ttl:'لنرسم جنبًا إلى جنب: رسوم متحركة لدو�
 EX.fr=['Retoucher le visage de face','Retoucher le profil','Retoucher le trois quarts'];
 EX.es=['Retocar el rostro de frente','Retocar el perfil','Retocar el tres cuartos'];
 EX.ar=['تعديل الوجه الأمامي','تعديل الوجه الجانبي','تعديل الوجه بزاوية ثلاثة أرباع'];
+I18N.th={ttl:'เกมวาดเรียงข้างกัน・แอนิเมชันหมุนใบหน้า',pen:'ปากกา',er:'ยางลบ',mv:'ย้าย',undo:'ย้อนกลับ',clr:'ลบทั้งหมด',next:'วาดเสร็จแล้ว!',fin:'เสร็จ! สร้าง GIF',p:['วาดใบหน้าด้านหน้า','วาดใบหน้าด้านข้าง','วาดใบหน้าแบบมุมเฉียง'],mk:'กำลังสร้าง GIF…',done:'เสร็จแล้ว!',hint:'กดค้างที่รูปภาพเพื่อบันทึก',again:'วาดอีกครั้ง'};
+EX.th=['แก้ไขใบหน้าด้านหน้า','แก้ไขใบหน้าด้านข้าง','แก้ไขใบหน้าแบบมุมเฉียง'];
 function fmt(d){var p=function(n){return n<10?'0'+n:''+n},y=d.getFullYear(),m=d.getMonth()+1,dd=d.getDate(),tm=p(d.getHours())+':'+p(d.getMinutes());
   return y+'-'+p(m)+'-'+p(dd)+' '+tm}
 function applyLang(){
@@ -282,12 +285,13 @@ function finish(){
   document.addEventListener('pointercancel',up);
 })();
 Array.prototype.forEach.call(document.querySelectorAll('#langs button'),function(el){
-  var t=0,dn=false;function go(){L=el.getAttribute('data-l');applyLang()}
+  var t=0,dn=false;function go(){L=el.getAttribute('data-l');try{localStorage.setItem('faceRotLang',L)}catch(e){}applyLang()}
   el.addEventListener('pointerdown',function(){dn=true});
   el.addEventListener('pointercancel',function(){dn=false});
   el.addEventListener('pointerup',function(){if(!dn)return;dn=false;t=Date.now();go()});
   el.addEventListener('click',function(){if(Date.now()-t<600)return;go()});
 });
+try{var _sv=localStorage.getItem('faceRotLang');if(_sv&&I18N[_sv])L=_sv;}catch(e){}
 addEventListener('resize',layout);
 setupStage();
 })();
