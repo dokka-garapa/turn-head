@@ -8,16 +8,19 @@
 :root{--bg:#f4f1ea;--fg:#2b2a27;--panel:#e5e0d3;--accent:#d9502b;--accent-fg:#fff;--line:#b9b19c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1d1c1a;--fg:#ece8dd;--panel:#33312d;--accent:#e8613a;--line:#59554c}}
 :root[data-theme="dark"]{--bg:#1d1c1a;--fg:#ece8dd;--panel:#33312d;--accent:#e8613a;--line:#59554c}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:none}
-html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif}
-#app{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:4px;padding:8px;pointer-events:none}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:pan-y}
+#draw{touch-action:none}
+html,body{margin:0;overflow-x:hidden;overscroll-behavior:none;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif}
+#app{height:100vh;height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:4px;padding:8px;pointer-events:none}
 #step{font-weight:700;font-size:15px;letter-spacing:.04em;padding:0}
 #top{width:100%;display:flex;flex-direction:column;justify-content:flex-start;align-items:stretch;gap:6px;pointer-events:none}
 #ttl{margin:0;flex:1;font-size:clamp(12px,3.4vw,16px);font-weight:700;line-height:1.3}
 #langs{display:flex;flex-wrap:nowrap;justify-content:flex-end;gap:4px;max-width:100%;width:100%}
 #langs button{flex:1 1 0;min-width:0;min-height:36px;padding:0 4px;font-size:12px;border-radius:999px;white-space:nowrap}
 #langs button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
-#bnote{font-size:13px;font-weight:600;letter-spacing:.03em;line-height:1.3;opacity:.6;margin-top:-2px}
+#bnote{font-size:13px;font-weight:700;letter-spacing:.03em;line-height:1.3;color:var(--accent);margin-top:-2px}
+#credit{margin-top:160px;padding-bottom:64px;text-align:center;font-size:12px;line-height:1.8;color:var(--fg);opacity:.72}
+#credit a{color:var(--accent);font-weight:700;text-decoration:none}
 #grid{display:grid;gap:0;pointer-events:none}
 .ref{display:flex;align-items:center;justify-content:center;overflow:hidden}
 .ref canvas{width:100%;aspect-ratio:1;background:#fff;border:1px solid var(--line);pointer-events:none}
@@ -64,6 +67,7 @@ button:disabled{opacity:.4}
     <button id="bAgain" class="go">もう一度描く</button>
   </div>
 </div>
+<footer id="credit"><div>© 2026 <span id="cname">ふっふ (Fuffu)</span></div><div><span id="contact">お問い合わせ: </span><a href="https://x.com/dokka_garapa" target="_blank" rel="noopener">X @dokka_garapa</a></div></footer>
 <script>
 (function(){
 var S=600,$=function(i){return document.getElementById(i)};
@@ -72,26 +76,26 @@ var rt=$('rt'),rf=$('rf'),grid=$('grid'),msg=$('msg');
 var stage=1,frames=[],tool='pen',strokes=0,undo=[],active=null,last=null,mid=null;
 var L='ja',rs=0,stamp='',editing=false;
 var I18N={
- ja:{ttl:'並べて描いてみようゲーム・顔の回転アニメ',bnote:'ブラウザで開くとGIFアニメ保存できます',pen:'ペン',er:'消しゴム',mv:'移動',undo:'取り消し',clr:'全消し',next:'描けた！',fin:'完成！GIFを作る',p:['正面からの顔を描いてください','横顔を描いてください','斜めの顔を描いてください'],mk:'GIFを作成中…',done:'完成！',hint:'画像を長押しで保存できます',again:'もう一度描く'},
- en:{ttl:'Draw Side by Side Game: Face Rotation Animation',bnote:'Open in a browser to save the GIF animation',pen:'Pen',er:'Eraser',mv:'Move',undo:'Undo',clr:'Clear',next:'Done!',fin:'Finish: make GIF',p:['Draw a front-facing face','Draw a side profile','Draw a three-quarter view'],mk:'Making GIF…',done:'Done!',hint:'Long-press the image to save',again:'Draw again'},
- ko:{ttl:'나란히 그려보자 게임・얼굴 회전 애니메이션',bnote:'브라우저에서 열면 GIF 애니메이션을 저장할 수 있습니다',pen:'펜',er:'지우개',mv:'이동',undo:'실행 취소',clr:'전체 지우기',next:'다 그렸어요!',fin:'완성! GIF 만들기',p:['정면 얼굴을 그려 주세요','옆얼굴을 그려 주세요','비스듬한 얼굴을 그려 주세요'],mk:'GIF 만드는 중…',done:'완성!',hint:'이미지를 길게 누르면 저장할 수 있어요',again:'다시 그리기'},
- zh:{ttl:'并排画画游戏・脸部旋转动画',bnote:'在浏览器中打开即可保存GIF动画',pen:'画笔',er:'橡皮擦',mv:'移动',undo:'撤销',clr:'全部清除',next:'画好了！',fin:'完成！生成GIF',p:['请画正面的脸','请画侧脸','请画斜侧面的脸'],mk:'正在生成GIF…',done:'完成！',hint:'长按图片即可保存',again:'重新画'}
+ ja:{ttl:'並べて描いてみようゲーム・顔の回転アニメ',bnote:'ブラウザで開くとGIFアニメ保存できます',cname:'ふっふ (Fuffu)',contact:'お問い合わせ: ',pen:'ペン',er:'消しゴム',mv:'移動',undo:'取り消し',clr:'全消し',next:'描けた！',fin:'完成！GIFを作る',p:['正面からの顔を描いてください','横顔を描いてください','斜めの顔を描いてください'],mk:'GIFを作成中…',done:'完成！',hint:'画像を長押しで保存できます',again:'もう一度描く'},
+ en:{ttl:'Draw Side by Side Game: Face Rotation Animation',bnote:'Open in a browser to save the GIF animation',cname:'Fuffu',contact:'Contact: ',pen:'Pen',er:'Eraser',mv:'Move',undo:'Undo',clr:'Clear',next:'Done!',fin:'Finish: make GIF',p:['Draw a front-facing face','Draw a side profile','Draw a three-quarter view'],mk:'Making GIF…',done:'Done!',hint:'Long-press the image to save',again:'Draw again'},
+ ko:{ttl:'나란히 그려보자 게임・얼굴 회전 애니메이션',bnote:'브라우저에서 열면 GIF 애니메이션을 저장할 수 있습니다',cname:'Fuffu',contact:'문의: ',pen:'펜',er:'지우개',mv:'이동',undo:'실행 취소',clr:'전체 지우기',next:'다 그렸어요!',fin:'완성! GIF 만들기',p:['정면 얼굴을 그려 주세요','옆얼굴을 그려 주세요','비스듬한 얼굴을 그려 주세요'],mk:'GIF 만드는 중…',done:'완성!',hint:'이미지를 길게 누르면 저장할 수 있어요',again:'다시 그리기'},
+ zh:{ttl:'并排画画游戏・脸部旋转动画',bnote:'在浏览器中打开即可保存GIF动画',cname:'Fuffu',contact:'联系方式：',pen:'画笔',er:'橡皮擦',mv:'移动',undo:'撤销',clr:'全部清除',next:'画好了！',fin:'完成！生成GIF',p:['请画正面的脸','请画侧脸','请画斜侧面的脸'],mk:'正在生成GIF…',done:'完成！',hint:'长按图片即可保存',again:'重新画'}
 };
 var EX={ja:['正面顔を加筆する','横顔を加筆する','斜め顔を加筆する'],en:['Edit front face','Edit side face','Edit three-quarter face'],ko:['정면 얼굴 덧그리기','옆얼굴 덧그리기','비스듬한 얼굴 덧그리기'],zh:['修改正面的脸','修改侧脸','修改斜侧面的脸']};
-I18N.fr={ttl:'Dessinons côte à côte : animation de rotation du visage',bnote:'Ouvrez dans un navigateur pour enregistrer l’animation GIF',pen:'Stylo',er:'Gomme',mv:'Déplacer',undo:'Annuler',clr:'Tout effacer',next:'Terminé !',fin:'Terminer : créer le GIF',p:['Dessinez un visage de face','Dessinez un visage de profil','Dessinez un visage de trois quarts'],mk:'Création du GIF…',done:'Terminé !',hint:'Appuyez longuement sur l’image pour l’enregistrer',again:'Dessiner à nouveau'};
-I18N.es={ttl:'Dibujemos lado a lado: animación de giro del rostro',bnote:'Ábrelo en un navegador para guardar la animación GIF',pen:'Lápiz',er:'Borrador',mv:'Mover',undo:'Deshacer',clr:'Borrar todo',next:'¡Listo!',fin:'Terminar: crear GIF',p:['Dibuja un rostro de frente','Dibuja un rostro de perfil','Dibuja un rostro de tres cuartos'],mk:'Creando el GIF…',done:'¡Listo!',hint:'Mantén pulsada la imagen para guardarla',again:'Dibujar de nuevo'};
-I18N.ar={ttl:'لنرسم جنبًا إلى جنب: رسوم متحركة لدوران الوجه',bnote:'افتحه في المتصفح لحفظ رسوم GIF المتحركة',pen:'قلم',er:'ممحاة',mv:'نقل',undo:'تراجع',clr:'مسح الكل',next:'تم الرسم!',fin:'إنهاء: إنشاء GIF',p:['ارسم وجهًا من الأمام','ارسم وجهًا من الجانب','ارسم وجهًا بزاوية ثلاثة أرباع'],mk:'جارٍ إنشاء GIF…',done:'اكتمل!',hint:'اضغط مطولًا على الصورة لحفظها',again:'ارسم من جديد'};
+I18N.fr={ttl:'Dessinons côte à côte : animation de rotation du visage',bnote:'Ouvrez dans un navigateur pour enregistrer l’animation GIF',cname:'Fuffu',contact:'Contact : ',pen:'Stylo',er:'Gomme',mv:'Déplacer',undo:'Annuler',clr:'Tout effacer',next:'Terminé !',fin:'Terminer : créer le GIF',p:['Dessinez un visage de face','Dessinez un visage de profil','Dessinez un visage de trois quarts'],mk:'Création du GIF…',done:'Terminé !',hint:'Appuyez longuement sur l’image pour l’enregistrer',again:'Dessiner à nouveau'};
+I18N.es={ttl:'Dibujemos lado a lado: animación de giro del rostro',bnote:'Ábrelo en un navegador para guardar la animación GIF',cname:'Fuffu',contact:'Contacto: ',pen:'Lápiz',er:'Borrador',mv:'Mover',undo:'Deshacer',clr:'Borrar todo',next:'¡Listo!',fin:'Terminar: crear GIF',p:['Dibuja un rostro de frente','Dibuja un rostro de perfil','Dibuja un rostro de tres cuartos'],mk:'Creando el GIF…',done:'¡Listo!',hint:'Mantén pulsada la imagen para guardarla',again:'Dibujar de nuevo'};
+I18N.ar={ttl:'لنرسم جنبًا إلى جنب: رسوم متحركة لدوران الوجه',bnote:'افتحه في المتصفح لحفظ رسوم GIF المتحركة',cname:'Fuffu',contact:'للتواصل: ',pen:'قلم',er:'ممحاة',mv:'نقل',undo:'تراجع',clr:'مسح الكل',next:'تم الرسم!',fin:'إنهاء: إنشاء GIF',p:['ارسم وجهًا من الأمام','ارسم وجهًا من الجانب','ارسم وجهًا بزاوية ثلاثة أرباع'],mk:'جارٍ إنشاء GIF…',done:'اكتمل!',hint:'اضغط مطولًا على الصورة لحفظها',again:'ارسم من جديد'};
 EX.fr=['Retoucher le visage de face','Retoucher le profil','Retoucher le trois quarts'];
 EX.es=['Retocar el rostro de frente','Retocar el perfil','Retocar el tres cuartos'];
 EX.ar=['تعديل الوجه الأمامي','تعديل الوجه الجانبي','تعديل الوجه بزاوية ثلاثة أرباع'];
-I18N.th={ttl:'เกมวาดเรียงข้างกัน・แอนิเมชันหมุนใบหน้า',bnote:'เปิดในเบราว์เซอร์เพื่อบันทึกภาพเคลื่อนไหว GIF ได้',pen:'ปากกา',er:'ยางลบ',mv:'ย้าย',undo:'ย้อนกลับ',clr:'ลบทั้งหมด',next:'วาดเสร็จแล้ว!',fin:'เสร็จ! สร้าง GIF',p:['วาดใบหน้าด้านหน้า','วาดใบหน้าด้านข้าง','วาดใบหน้าแบบมุมเฉียง'],mk:'กำลังสร้าง GIF…',done:'เสร็จแล้ว!',hint:'กดค้างที่รูปภาพเพื่อบันทึก',again:'วาดอีกครั้ง'};
+I18N.th={ttl:'เกมวาดเรียงข้างกัน・แอนิเมชันหมุนใบหน้า',bnote:'เปิดในเบราว์เซอร์เพื่อบันทึกภาพเคลื่อนไหว GIF ได้',cname:'Fuffu',contact:'ติดต่อ: ',pen:'ปากกา',er:'ยางลบ',mv:'ย้าย',undo:'ย้อนกลับ',clr:'ลบทั้งหมด',next:'วาดเสร็จแล้ว!',fin:'เสร็จ! สร้าง GIF',p:['วาดใบหน้าด้านหน้า','วาดใบหน้าด้านข้าง','วาดใบหน้าแบบมุมเฉียง'],mk:'กำลังสร้าง GIF…',done:'เสร็จแล้ว!',hint:'กดค้างที่รูปภาพเพื่อบันทึก',again:'วาดอีกครั้ง'};
 EX.th=['แก้ไขใบหน้าด้านหน้า','แก้ไขใบหน้าด้านข้าง','แก้ไขใบหน้าแบบมุมเฉียง'];
 function fmt(d){var p=function(n){return n<10?'0'+n:''+n},y=d.getFullYear(),m=d.getMonth()+1,dd=d.getDate(),tm=p(d.getHours())+':'+p(d.getMinutes());
   return y+'-'+p(m)+'-'+p(dd)+' '+tm}
 function applyLang(){
   var T=I18N[L];document.title=T.ttl;
-  ['ttl','msg','rtxt','hint','bnote','bPen','bEr','bMv','bUndo','bClr','bNext','bAgain','bE0','bE1','bE2'].forEach(function(id){$(id).dir=L==='ar'?'rtl':'ltr'});document.documentElement.lang=L;
-  $('ttl').textContent=T.ttl;$('bnote').textContent=T.bnote;$('bPen').textContent=T.pen;$('bEr').textContent=T.er;$('bMv').textContent=T.mv;
+  ['ttl','msg','rtxt','hint','bnote','credit','cname','contact','bPen','bEr','bMv','bUndo','bClr','bNext','bAgain','bE0','bE1','bE2'].forEach(function(id){$(id).dir=L==='ar'?'rtl':'ltr'});document.documentElement.lang=L;
+  $('ttl').textContent=T.ttl;$('bnote').textContent=T.bnote;$('cname').textContent=T.cname;$('contact').textContent=T.contact;$('bPen').textContent=T.pen;$('bEr').textContent=T.er;$('bMv').textContent=T.mv;
   $('bUndo').textContent=T.undo;$('bClr').textContent=T.clr;$('bNext').textContent=(stage===3||editing)?T.fin:T.next;
   msg.textContent=T.p[stage-1]||'';$('step').textContent='STEP '+stage+' / 3';
   $('rtxt').textContent=rs?T.done:T.mk;$('hint').textContent=T.hint;for(var i=0;i<3;i++)$('bE'+i).textContent=EX[L][i];$('bAgain').textContent=T.again;
@@ -99,8 +103,9 @@ function applyLang(){
 }
 var FR=[.2,.35,.5,.65,.8];
 
-// 描画以外の接触を無効化
-['touchmove','gesturestart','dblclick','contextmenu'].forEach(function(t){
+// 描画まわりの接触だけ無効化（背景のドラッグではページがスクロールできるように）
+document.addEventListener('touchmove',function(e){var el=e.target;if(el&&el.tagName==='IMG')return;if(el&&(el.tagName==='CANVAS'||el.tagName==='BUTTON'))e.preventDefault()},{passive:false});
+['gesturestart','dblclick','contextmenu'].forEach(function(t){
   document.addEventListener(t,function(e){var el=e.target;if(el&&el.tagName==='IMG')return;e.preventDefault()},{passive:false});
 });
 
@@ -266,7 +271,7 @@ function finish(){
   function two(){var a=Array.from(P.values());return{d:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)||1,x:(a[0].x+a[1].x)/2,y:(a[0].y+a[1].y)/2}}
   function apply(){app.style.transform='translate('+Z.x+'px,'+Z.y+'px) scale('+Z.s+')'}
   document.addEventListener('pointerdown',function(e){
-    if(e.target===draw||e.target.tagName==='BUTTON'||e.target.tagName==='IMG'||e.pointerType==='mouse')return;
+    if(e.target===draw||e.target.tagName==='BUTTON'||e.target.tagName==='IMG'||e.target.tagName==='A'||(e.target.closest&&e.target.closest('#credit'))||e.pointerType==='mouse')return;
     P.set(e.pointerId,{x:e.clientX,y:e.clientY});
     if(P.size===2&&active===null){var t=two();g={d:t.d,mx:t.x,my:t.y,s:Z.s,x:Z.x,y:Z.y}}
   });
